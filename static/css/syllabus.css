@@ -5,6 +5,11 @@
  * Revised:  
  */
 
+tr.current{
+    /* Highlight current week a nice green*/
+    background-color:green;
+}
+
 body {
 	background: #EEE; 
 	color: #444;
@@ -50,3 +55,4 @@ tr.even {
     padding-left: 2ex;
     font-style: italic;
 }
+

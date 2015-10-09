@@ -14,6 +14,8 @@ def process(raw):
     field = None
     entry = { }
     cooked = [ ] 
+    counter = 0
+
     for line in raw:
         line = line.rstrip()
         if len(line) == 0:
@@ -22,16 +24,17 @@ def process(raw):
         if len(parts) == 1 and field:
             entry[field] = entry[field] + line
             continue
-        if len(parts) == 2: 
+        if len(parts) == 2:
             field = parts[0]
             content = parts[1]
         else:
             raise ValueError("Trouble with line: '{}'\n".format(line) + 
                 "Split into |{}|".format("|".join(parts)))
 
+
         if field == "begin":
             try:
-                base = arrow.get(content)
+                base = arrow.get(content, "M/D/YYYY")
             except:
                 raise ValueError("Unable to parse date {}".format(content))
 
@@ -39,9 +42,22 @@ def process(raw):
             if entry:
                 cooked.append(entry)
                 entry = { }
+
+            #This code helps highlight the correct week
+            entry['current'] = "OFF"
+            theWeek = base.replace(weeks=+counter)
+            nextWeek = base.replace(weeks=+(counter+1))
+            if theWeek < arrow.now() < nextWeek:
+                entry['current'] = "ON"
+
             entry['topic'] = ""
             entry['project'] = ""
-            entry['week'] = content
+            entry['week'] = "Week "+content+": "
+            entry['date'] = theWeek.format('MM/DD/YYYY')
+
+            #prepare for the next iteration through the loop
+            counter += 1
+            theWeek = theWeek.replace(weeks=+counter)
 
         elif field == 'topic' or field == 'project':
             entry[field] = content
